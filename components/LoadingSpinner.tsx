@@ -1,28 +1,41 @@
 "use client"
 
-import { Box, CircularProgress, Typography } from "@mui/material"
-
 export default function LoadingSpinner() {
   return (
-    <Box
-      sx={{
+    <div
+      style={{
         position: "absolute",
         top: 0,
         left: 0,
-        right: 0,
-        bottom: 0,
+        width: "100%",
+        height: "100%",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "rgba(0, 0, 0, 0.3)",
+        backgroundColor: "rgba(255, 255, 255, 0.7)",
         zIndex: 10,
+        borderRadius: "inherit",
       }}
     >
-      <CircularProgress size={60} thickness={4} />
-      <Typography variant="body1" sx={{ mt: 2, color: "white" }}>
-        Loading model...
-      </Typography>
-    </Box>
+      <div
+        style={{
+          border: "4px solid rgba(0, 0, 0, 0.1)",
+          borderTopColor: "#5c6bc0",
+          borderRadius: "50%",
+          width: "40px",
+          height: "40px",
+          animation: "spin 1s linear infinite",
+        }}
+      />
+      <style jsx>{`
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
+      <p style={{ marginTop: "16px", fontWeight: 500 }}>Loading 3D Model...</p>
+    </div>
   )
 }

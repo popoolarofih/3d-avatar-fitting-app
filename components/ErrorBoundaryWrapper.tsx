@@ -1,42 +1,60 @@
 "use client"
 
-import type React from "react"
-
 import { ErrorBoundary } from "react-error-boundary"
-import { Box, Typography, Button } from "@mui/material"
+import { Box, Button, Typography } from "@mui/material"
 
-function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
+function ErrorFallback({ error, resetErrorBoundary }) {
   return (
     <Box
       sx={{
         p: 4,
+        height: "100vh",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        minHeight: "100vh",
+        bgcolor: "#f5f5f5",
+        color: "#333",
         textAlign: "center",
       }}
     >
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" component="h1" gutterBottom color="error">
         Something went wrong
       </Typography>
-      <Typography variant="body1" sx={{ mb: 3 }}>
-        {error.message || "An unexpected error occurred"}
+      
+      <Typography variant="body1" sx={{ maxWidth: "600px", mb: 4 }}>
+        {error.message || "An unexpected error occurred in the application"}
       </Typography>
-      <Button variant="contained" onClick={resetErrorBoundary}>
+      
+      <pre style={{ 
+        backgroundColor: "#f1f1f1", 
+        padding: "15px", 
+        borderRadius: "4px", 
+        maxWidth: "80%", 
+        overflow: "auto",
+        fontSize: "0.9rem",
+        maxHeight: "200px"
+      }}>
+        {error.stack}
+      </pre>
+      
+      <Button 
+        variant="contained" 
+        color="primary"
+        onClick={resetErrorBoundary}
+        sx={{ mt: 4 }}
+      >
         Try again
       </Button>
     </Box>
   )
 }
 
-export default function ErrorBoundaryWrapper({ children }: { children: React.ReactNode }) {
+export default function ErrorBoundaryWrapper({ children }) {
   return (
-    <ErrorBoundary
+    <ErrorBoundary 
       FallbackComponent={ErrorFallback}
       onReset={() => {
-        // Reset the state of your app here
         window.location.reload()
       }}
     >

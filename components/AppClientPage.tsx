@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useCallback, useEffect } from "react"
-import { Container, Box, Typography, Alert, Snackbar, Button } from "@mui/material"
+import { Container, Box, Typography, Button } from "@mui/material"
 import AvatarScene from "@/components/AvatarScene"
 import ControlPanel from "@/components/ControlPanel"
 import { ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper"
+import SimpleNotification from "@/components/SimpleNotification"
 
 export default function AppClientPage() {
   const router = useRouter()
@@ -16,6 +17,7 @@ export default function AppClientPage() {
   const [clothingColor, setClothingColor] = useState("#5c6bc0")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
 
   // Clean up blob URLs when component unmounts
   useEffect(() => {
@@ -47,10 +49,10 @@ export default function AppClientPage() {
 
         const url = URL.createObjectURL(file)
         setAvatarUrl(url)
+        setSuccess(`Avatar model "${file.name}" loaded successfully!`)
       } catch (err: any) {
         setError(err.message || "Failed to upload avatar")
         console.error("Avatar upload error:", err)
-      } finally {
         setIsLoading(false)
       }
     },
@@ -75,10 +77,10 @@ export default function AppClientPage() {
 
         const url = URL.createObjectURL(file)
         setClothingUrl(url)
+        setSuccess(`Clothing model "${file.name}" loaded successfully!`)
       } catch (err: any) {
         setError(err.message || "Failed to upload clothing")
         console.error("Clothing upload error:", err)
-      } finally {
         setIsLoading(false)
       }
     },
@@ -93,10 +95,15 @@ export default function AppClientPage() {
     setShowClothing(true)
     setClothingColor("#5c6bc0")
     setError(null)
+    setSuccess("Scene reset successfully")
   }, [avatarUrl, clothingUrl])
 
   const handleCloseError = () => {
     setError(null)
+  }
+
+  const handleCloseSuccess = () => {
+    setSuccess(null)
   }
 
   const handleBackToHome = () => {
@@ -138,15 +145,15 @@ export default function AppClientPage() {
               setClothingColor={setClothingColor}
               hasAvatar={!!avatarUrl}
               hasClothing={!!clothingUrl}
+              isLoading={isLoading}
             />
           </Box>
         </Box>
 
-        <Snackbar open={!!error} autoHideDuration={6000} onClose={handleCloseError}>
-          <Alert onClose={handleCloseError} severity="error" sx={{ width: "100%" }}>
-            {error}
-          </Alert>
-        </Snackbar>
+        {/* Custom notifications instead of Material UI Snackbar */}
+        <SimpleNotification message={error} type="error" onClose={handleCloseError} duration={6000} />
+
+        <SimpleNotification message={success} type="success" onClose={handleCloseSuccess} duration={3000} />
       </Container>
     </ErrorBoundaryWrapper>
   )

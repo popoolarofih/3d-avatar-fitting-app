@@ -15,6 +15,7 @@ interface ControlPanelProps {
   setClothingColor: (color: string) => void
   hasAvatar: boolean
   hasClothing: boolean
+  isLoading?: boolean
 }
 
 export default function ControlPanel({
@@ -27,6 +28,7 @@ export default function ControlPanel({
   setClothingColor,
   hasAvatar,
   hasClothing,
+  isLoading = false,
 }: ControlPanelProps) {
   // Dropzone for avatar upload
   const onAvatarDrop = useCallback(
@@ -71,6 +73,16 @@ export default function ControlPanel({
       "model/gltf+json": [".gltf"],
     },
   })
+
+  // Predefined color options
+  const colorOptions = [
+    { name: "Blue", value: "#5c6bc0" },
+    { name: "Red", value: "#f44336" },
+    { name: "Green", value: "#4caf50" },
+    { name: "Purple", value: "#9c27b0" },
+    { name: "Orange", value: "#ff9800" },
+    { name: "Black", value: "#000000" },
+  ]
 
   return (
     <Paper elevation={3} sx={{ p: 3, height: "100%", display: "flex", flexDirection: "column" }}>
@@ -155,6 +167,33 @@ export default function ControlPanel({
         <Typography variant="subtitle2" gutterBottom>
           Clothing Color
         </Typography>
+
+        {/* Simple color selection buttons instead of CirclePicker */}
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
+          {colorOptions.map((color) => (
+            <Button
+              key={color.value}
+              variant={clothingColor === color.value ? "contained" : "outlined"}
+              sx={{
+                minWidth: "auto",
+                width: 36,
+                height: 36,
+                p: 0,
+                bgcolor: color.value,
+                borderColor: clothingColor === color.value ? "white" : color.value,
+                "&:hover": {
+                  bgcolor: color.value,
+                  opacity: 0.9,
+                },
+              }}
+              onClick={() => setClothingColor(color.value)}
+              disabled={!hasAvatar || !hasClothing}
+              aria-label={`Select ${color.name} color`}
+            />
+          ))}
+        </Box>
+
+        {/* Custom color input */}
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <TextField
             type="color"
@@ -162,6 +201,7 @@ export default function ControlPanel({
             onChange={(e) => setClothingColor(e.target.value)}
             sx={{ width: 56, mr: 2 }}
             disabled={!hasAvatar || !hasClothing}
+            inputProps={{ "aria-label": "Select custom color" }}
           />
           <Typography variant="body2">{clothingColor}</Typography>
         </Box>

@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Box } from "@mui/material"
 import { Canvas } from "@react-three/fiber"
 import {
   OrbitControls,
@@ -14,6 +13,7 @@ import {
 } from "@react-three/drei"
 import { ErrorBoundary } from "react-error-boundary"
 import LoadingSpinner from "./LoadingSpinner"
+import * as THREE from "three"
 
 // Model component for both avatar and clothing
 const Model = ({ url, color = null, modelType }) => {
@@ -23,14 +23,47 @@ const Model = ({ url, color = null, modelType }) => {
     setError(e)
   })
 
+  // Function to normalize model size
+  const normalizeModel = (model) => {
+    try {
+      // Calculate bounding box
+      const box = new THREE.Box3().setFromObject(model)
+      const size = box.getSize(new THREE.Vector3())
+      const center = box.getCenter(new THREE.Vector3())
+
+      // Get model height
+      const height = size.y
+
+      // Target height (standard human height in Three.js units)
+      const targetHeight = 1.7
+
+      // Calculate scale factor
+      const scale = targetHeight / height
+
+      // Apply uniform scaling
+      model.scale.set(scale, scale, scale)
+
+      // Center the model
+      model.position.set(-center.x * scale, -center.y * scale, -center.z * scale)
+
+      // Adjust position so the model stands on the ground
+      const newBox = new THREE.Box3().setFromObject(model)
+      model.position.y -= newBox.min.y
+
+      console.log(`${modelType} model normalized. Original height: ${height}, Scale: ${scale}`)
+    } catch (err) {
+      console.error("Error normalizing model:", err)
+    }
+  }
+
   if (error) {
     return (
       <Html center>
-        <Box
-          sx={{
-            p: 3,
-            bgcolor: "rgba(0,0,0,0.7)",
-            borderRadius: 2,
+        <div
+          style={{
+            padding: "12px",
+            backgroundColor: "rgba(0,0,0,0.7)",
+            borderRadius: "8px",
             color: "white",
             textAlign: "center",
             maxWidth: "80%",
@@ -38,7 +71,7 @@ const Model = ({ url, color = null, modelType }) => {
         >
           <h3>Error Loading Model</h3>
           <p>{error.message || `Failed to load ${modelType} model`}</p>
-        </Box>
+        </div>
       </Html>
     )
   }
@@ -46,6 +79,9 @@ const Model = ({ url, color = null, modelType }) => {
   if (!scene) return null
 
   const clonedScene = scene.clone()
+
+  // Normalize model size
+  normalizeModel(clonedScene)
 
   // Apply material color to clothing
   if (modelType === "clothing" && color) {
@@ -61,7 +97,7 @@ const Model = ({ url, color = null, modelType }) => {
   if (modelType === "clothing") {
     // The positioning will depend on your models
     // This is a basic example - adjust as needed
-    clonedScene.position.set(0, 0.02, 0) // Slight upward adjustment to avoid z-fighting
+    clonedScene.position.y += 0.02 // Slight upward adjustment to avoid z-fighting
   }
 
   return <primitive object={clonedScene} />
@@ -80,11 +116,11 @@ const Floor = () => {
 function Placeholder() {
   return (
     <Html center>
-      <Box
-        sx={{
-          p: 3,
-          bgcolor: "rgba(0,0,0,0.5)",
-          borderRadius: 2,
+      <div
+        style={{
+          padding: "12px",
+          backgroundColor: "rgba(0,0,0,0.5)",
+          borderRadius: "8px",
           color: "white",
           textAlign: "center",
         }}
@@ -92,7 +128,10 @@ function Placeholder() {
         <h3>No Models Loaded</h3>
         <p>Upload an avatar and clothing models to get started</p>
         <p style={{ opacity: 0.7, fontSize: "0.9em", marginTop: "10px" }}>Supported formats: GLB, GLTF</p>
-      </Box>
+        <p style={{ opacity: 0.7, fontSize: "0.9em", marginTop: "5px" }}>
+          Models will be automatically normalized to standard size
+        </p>
+      </div>
     </Html>
   )
 }
@@ -100,16 +139,16 @@ function Placeholder() {
 // Error fallback component
 function ErrorFallback({ error }) {
   return (
-    <Box
-      sx={{
-        p: 4,
+    <div
+      style={{
+        padding: "16px",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         height: "100%",
         textAlign: "center",
-        bgcolor: "#2a2a2a",
+        backgroundColor: "#2a2a2a",
         color: "white",
       }}
     >
@@ -129,7 +168,7 @@ function ErrorFallback({ error }) {
       >
         Try again
       </button>
-    </Box>
+    </div>
   )
 }
 
@@ -160,21 +199,40 @@ export default function AvatarScene({
     }
   }, [avatarUrl, clothingUrl])
 
+  // Handle model loading completion
+  useEffect(() => {
+    if (setIsLoading && isLoading) {
+      // Add a small delay to ensure the model has time to load
+      const timer = setTimeout(() => {
+        setIsLoading(false)
+      }, 1000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [isLoading, setIsLoading])
+
   return (
-    <Box
-      sx={{
+    <div
+      style={{
         width: "100%",
         height: "100%",
         position: "relative",
-        bgcolor: "#e0e0e0",
-        borderRadius: 2,
+        backgroundColor: "#e0e0e0",
+        borderRadius: "8px",
         overflow: "hidden",
       }}
     >
       {isLoading && <LoadingSpinner />}
 
       <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <Canvas shadows camera={{ position: [0, 1.5, 3], fov: 50 }} onCreated={({ gl }) => gl.setClearColor("#e0e0e0")}>
+        <Canvas
+          shadows
+          camera={{ position: [0, 1.5, 3], fov: 50 }}
+          onCreated={({ gl }) => {
+            gl.setClearColor("#e0e0e0")
+            gl.shadowMap.enabled = true
+          }}
+        >
           <ambientLight intensity={0.5} />
           <directionalLight
             position={[5, 5, 5]}
@@ -197,6 +255,6 @@ export default function AvatarScene({
           <OrbitControls enablePan={true} enableZoom={true} enableRotate={true} minDistance={1} maxDistance={10} />
         </Canvas>
       </ErrorBoundary>
-    </Box>
+    </div>
   )
 }
