@@ -1,8 +1,7 @@
+import type React from "react"
 import "./globals.css"
 import type { Metadata } from "next"
-import type React from "react"
-import { ThemeProvider, createTheme } from "@mui/material/styles"
-import CssBaseline from "@mui/material/CssBaseline"
+import { Anta } from "next/font/google"
 
 export const metadata: Metadata = {
   title: "3D Avatar Fitting App",
@@ -10,54 +9,12 @@ export const metadata: Metadata = {
     generator: 'v0.dev'
 }
 
-// Create a theme instance
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#5c6bc0",
-    },
-    secondary: {
-      main: "#f50057",
-    },
-    background: {
-      default: "#f5f5f5",
-    },
-  },
-  typography: {
-    fontFamily: '"Anta", "Roboto", "Helvetica", "Arial", sans-serif',
-    h1: {
-      fontFamily: '"Anta", sans-serif',
-    },
-    h2: {
-      fontFamily: '"Anta", sans-serif',
-    },
-    h3: {
-      fontFamily: '"Anta", sans-serif',
-    },
-    h4: {
-      fontFamily: '"Anta", sans-serif',
-    },
-    h5: {
-      fontFamily: '"Anta", sans-serif',
-    },
-    h6: {
-      fontFamily: '"Anta", sans-serif',
-    },
-    button: {
-      fontFamily: '"Anta", sans-serif',
-      fontWeight: 500,
-    },
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: 8,
-          textTransform: "none",
-        },
-      },
-    },
-  },
+// Load Anta font
+const anta = Anta({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-anta",
 })
 
 export default function RootLayout({
@@ -66,18 +23,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Anta&display=swap" rel="stylesheet" />
-      </head>
-      <body>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          {children}
-        </ThemeProvider>
-      </body>
+    <html lang="en" className={anta.variable}>
+      <body>{children}</body>
     </html>
   )
 }

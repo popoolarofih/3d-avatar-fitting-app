@@ -11,10 +11,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Disable static generation for app route
-  experimental: {
-    appDir: true,
-  },
 };
 
 export default nextConfig;

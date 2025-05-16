@@ -140,13 +140,7 @@ export default function ControlPanel({
 
       <Box sx={{ mb: 2 }}>
         <FormControlLabel
-          control={
-            <Switch
-              checked={showClothing}
-              onChange={(e) => setShowClothing(e.target.checked)}
-              disabled={!hasClothing}
-            />
-          }
+          control={<Switch checked={showClothing} onChange={(e) => setShowClothing(e.target.checked)} />}
           label="Show Clothing"
         />
       </Box>
@@ -160,7 +154,6 @@ export default function ControlPanel({
             type="color"
             value={clothingColor}
             onChange={(e) => setClothingColor(e.target.value)}
-            disabled={!hasClothing}
             sx={{ width: 56, mr: 2 }}
           />
           <Typography variant="body2">{clothingColor}</Typography>
@@ -168,14 +161,7 @@ export default function ControlPanel({
       </Box>
 
       <Box sx={{ mt: "auto" }}>
-        <Button
-          variant="outlined"
-          color="secondary"
-          startIcon={<RefreshIcon />}
-          onClick={onReset}
-          fullWidth
-          disabled={!hasAvatar && !hasClothing}
-        >
+        <Button variant="outlined" color="secondary" startIcon={<RefreshIcon />} onClick={onReset} fullWidth>
           Reset Scene
         </Button>
       </Box>

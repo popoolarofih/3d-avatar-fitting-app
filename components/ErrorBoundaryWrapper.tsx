@@ -1,9 +1,11 @@
 "use client"
 
+import type React from "react"
+
 import { ErrorBoundary } from "react-error-boundary"
 import { Box, Typography, Button } from "@mui/material"
 
-function ErrorFallback({ error, resetErrorBoundary }) {
+function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
   return (
     <Box
       sx={{
@@ -29,7 +31,7 @@ function ErrorFallback({ error, resetErrorBoundary }) {
   )
 }
 
-export default function ErrorBoundaryWrapper({ children }) {
+export default function ErrorBoundaryWrapper({ children }: { children: React.ReactNode }) {
   return (
     <ErrorBoundary
       FallbackComponent={ErrorFallback}
