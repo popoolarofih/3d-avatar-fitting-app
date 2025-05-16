@@ -148,12 +148,6 @@ export default function AvatarScene({
   isLoading: boolean
   setIsLoading?: (loading: boolean) => void
 }) {
-  // Preload the default model
-  useGLTF.preload("/assets/3d/family-basemesh.glb")
-
-  // Use default model if none provided
-  const effectiveAvatarUrl = avatarUrl || "/assets/3d/family-basemesh.glb"
-
   // Unload previous models when URLs change
   useEffect(() => {
     return () => {
@@ -191,9 +185,11 @@ export default function AvatarScene({
           />
 
           <Center>
-            {effectiveAvatarUrl ? <Model url={effectiveAvatarUrl} modelType="avatar" /> : <Placeholder />}
+            {avatarUrl ? <Model url={avatarUrl} modelType="avatar" /> : <Placeholder />}
 
-            {clothingUrl && showClothing && <Model url={clothingUrl} color={clothingColor} modelType="clothing" />}
+            {clothingUrl && showClothing && avatarUrl && (
+              <Model url={clothingUrl} color={clothingColor} modelType="clothing" />
+            )}
           </Center>
 
           <Floor />
